@@ -47,7 +47,7 @@ android {
 
 dependencies {
     implementation (libs.androidx.activity.ktx)
-
+    implementation (libs.androidx.databinding.runtime)
     implementation(libs.androidx.recyclerview)
         implementation(libs.androidx.lifecycle.viewmodel.ktx)
         implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -55,10 +55,12 @@ dependencies {
         kapt(libs.androidx.room.compiler)
     implementation (libs.firebase.bom.v3222)
 
+    implementation (libs.firebase.bom.v3200)
+
+    implementation (libs.google.firebase.database.ktx)
     implementation(libs.firebase.database.ktx)
         implementation(libs.picasso) // For loading images
     implementation(libs.firebase.analytics)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
