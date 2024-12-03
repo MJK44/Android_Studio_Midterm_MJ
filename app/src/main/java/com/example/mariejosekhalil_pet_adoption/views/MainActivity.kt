@@ -1,5 +1,6 @@
 package com.example.mariejosekhalil_pet_adoption.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +26,10 @@ class MainActivity : AppCompatActivity() {
             // Handle remove pet callback
             petViewModel.deletePet(pet) // Remove the pet from the database
             Toast.makeText(this, "${pet.name} removed", Toast.LENGTH_SHORT).show()
+        }
+        binding.addPetButton.setOnClickListener {
+            val intent = Intent(this, AddPetActivity::class.java)
+            startActivity(intent)
         }
 
         // Set up RecyclerView

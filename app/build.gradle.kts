@@ -15,13 +15,14 @@ android {
 
 
     namespace = "com.example.mariejosekhalil_pet_adoption"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.mariejosekhalil_pet_adoption"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 1
+        //noinspection EditedTargetSdkVersion
+        targetSdk = 35
+        versionCode = 15
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -44,22 +45,22 @@ android {
         jvmTarget = "11"
     }
 }
-
 dependencies {
-    implementation (libs.androidx.activity.ktx)
-    implementation (libs.androidx.databinding.runtime)
+    implementation(libs.androidx.databinding.runtime)
     implementation(libs.androidx.recyclerview)
-        implementation(libs.androidx.lifecycle.viewmodel.ktx)
-        implementation(libs.androidx.lifecycle.livedata.ktx)
-        implementation(libs.androidx.room.runtime)
-        kapt(libs.androidx.room.compiler)
-    implementation (libs.firebase.bom.v3222)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.navigation.fragment)
 
-    implementation (libs.firebase.bom.v3200)
+    kapt(libs.androidx.room.compiler)
 
-    implementation (libs.google.firebase.database.ktx)
-    implementation(libs.firebase.database.ktx)
-        implementation(libs.picasso) // For loading images
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.androidx.activity.ktx.v172)
+
+    implementation(libs.google.firebase.database.ktx)
+    implementation(libs.picasso)
     implementation(libs.firebase.analytics)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -70,6 +71,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.navigation.runtime.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

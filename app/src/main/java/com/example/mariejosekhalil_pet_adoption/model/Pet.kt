@@ -13,9 +13,9 @@ data class Pet(
     val age: String,
     val location: String,
     val description: String,
-    val imageUrl: String,
+    var imageUrl: String,
     val userId: String,
-   /* val ownerEmail: String*/ // New field for owner's email*/
+    /* val ownerEmail: String*/ // New field for owner's email*/
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),

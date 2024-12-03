@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MarieJoseKhalil_pet_adoption</string>
+    <string name="pet_image">Pet image description</string>
+
 </resources>

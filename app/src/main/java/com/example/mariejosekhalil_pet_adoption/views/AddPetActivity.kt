@@ -1,17 +1,23 @@
 package com.example.mariejosekhalil_pet_adoption.views
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mariejosekhalil_pet_adoption.R
+import com.example.mariejosekhalil_pet_adoption.adapter.BreedAdapter
 import com.example.mariejosekhalil_pet_adoption.databinding.ActivityAddPetBinding
 import com.example.mariejosekhalil_pet_adoption.model.Pet
 import com.example.mariejosekhalil_pet_adoption.viewmodel.PetViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.collectLatest
+import java.util.UUID
 
 class AddPetActivity : AppCompatActivity() {
 
@@ -36,6 +42,22 @@ class AddPetActivity : AppCompatActivity() {
             Toast.makeText(this, status, Toast.LENGTH_SHORT).show()
         }
 
+        // Set up RecyclerView LayoutManager
+        binding.sfRecyclerview.layoutManager = LinearLayoutManager(this)
+
+        // Set up click listeners for animal images
+        binding.imgDog.setOnClickListener {
+            fetchBreeds("dogs") { breeds ->
+                updateBreedRecyclerView(breeds)
+            }
+        }
+
+        binding.imgCat.setOnClickListener {
+            fetchBreeds("cats") { breeds ->
+                updateBreedRecyclerView(breeds)
+            }
+        }
+
         // Set up the Submit button listener
         binding.sfBtnSubmit.setOnClickListener {
             handleAddPet()
@@ -45,6 +67,33 @@ class AddPetActivity : AppCompatActivity() {
         binding.imageView.setOnClickListener {
             pickImage()
         }
+    }
+
+
+    private fun fetchBreeds(animalType: String, callback: (List<String>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("animals").document(animalType)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val breeds = document.get("breeds") as? List<String> ?: emptyList()
+                    callback(breeds)
+                } else {
+                    callback(emptyList())
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Error fetching breeds: ${exception.message}", Toast.LENGTH_SHORT).show()
+                callback(emptyList())
+            }
+    }
+
+    private fun updateBreedRecyclerView(breeds: List<String>) {
+        val adapter = BreedAdapter(breeds) { selectedBreed ->
+            Toast.makeText(this, "Selected: $selectedBreed", Toast.LENGTH_SHORT).show()
+            // Save the selected breed or use it as needed
+        }
+        binding.sfRecyclerview.adapter = adapter
     }
 
     private fun handleAddPet() {
@@ -77,10 +126,51 @@ class AddPetActivity : AppCompatActivity() {
 
         // Save the pet to the database using PetViewModel
         petViewModel.addPet(newPet)
+        Toast.makeText(this, "Pet added successfully", Toast.LENGTH_SHORT).show()
+        saveToFirebase(newPet)
 
-        // Clear the input fields
-        clearInputs()
+        // Navigate back to MainActivity
+      /*  val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()*/
+
     }
+    private fun saveToFirebase(pet: Pet) {
+        val db = FirebaseFirestore.getInstance()
+        val petData = hashMapOf(
+            "name" to pet.name,
+            "breed" to pet.breed,
+            "age" to pet.age,
+            "location" to pet.location,
+            "description" to pet.description,
+            "imageUrl" to pet.imageUrl,
+            "userId" to pet.userId
+        )
+
+        db.collection("pets")
+            .add(petData)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Pet saved to Firebase", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error saving pet to Firebase: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+    private fun uploadImageToFirebase(imageUri: Uri, pet: Pet) {
+        val storageRef = FirebaseStorage.getInstance().reference.child("pets/${UUID.randomUUID()}")
+        storageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    pet.imageUrl = uri.toString()
+                    saveToFirebase(pet) // Save the pet after uploading the image
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error uploading image: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 
     private fun clearInputs() {
         binding.sfEtName.text.clear()
@@ -108,4 +198,5 @@ class AddPetActivity : AppCompatActivity() {
             imageUrl = imageUri.toString() // Save the URI for storage
         }
     }
+
 }
